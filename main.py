@@ -2,9 +2,8 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app, resources={
-    r"/ia": {"origins": "https://rique-cardoso.github.io/"},
-})
+CORS(app, origins="https://rique-cardoso.github.io", methods=["GET", "POST", "OPTIONS"], supports_credentials=True)
+
 
 from dotenv import load_dotenv
 import os
@@ -19,8 +18,11 @@ def consultar_gemini(mensagem=""):
     response = model.generate_content(mensagem)
     return response.text
 
-@app.route('/ia', methods=['POST'])
+@app.route('/ia', methods=['POST', 'OPTIONS'])
 def ia():
+    if request.method == 'OPTIONS':
+        return '', 204  # resposta vazia para preflight
+
     data = request.json
     prompt = data.get("prompt")
     if not prompt:
